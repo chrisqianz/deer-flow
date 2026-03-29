@@ -12,6 +12,7 @@ from app.gateway.routers import (
     mcp,
     memory,
     models,
+    openai,
     skills,
     suggestions,
     threads,
@@ -148,6 +149,10 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
                 "name": "health",
                 "description": "Health check and system status endpoints",
             },
+            {
+                "name": "openai",
+                "description": "OpenAI-compatible API endpoints for chat completions and models",
+            },
         ],
     )
 
@@ -183,6 +188,13 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
 
     # Channels API is mounted at /api/channels
     app.include_router(channels.router)
+
+    # OpenAI-compatible API - mounted at /v1 (chat/completions, models) and /responses
+    config = get_gateway_config()
+    if config.openai_compatible_enabled:
+        app.include_router(openai.v1_router)
+        app.include_router(openai.router)
+        logger.info(f"OpenAI-compatible API enabled on {config.openai_compatible_host}:{config.openai_compatible_port}")
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict:
