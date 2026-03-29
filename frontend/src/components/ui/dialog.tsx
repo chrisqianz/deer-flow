@@ -111,6 +111,7 @@ function DialogTitle({
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn("text-lg leading-none font-semibold", className)}
+      suppressHydrationWarning
       {...props}
     />
   )
@@ -124,6 +125,7 @@ function DialogDescription({
     <DialogPrimitive.Description
       data-slot="dialog-description"
       className={cn("text-muted-foreground text-sm", className)}
+      suppressHydrationWarning
       {...props}
     />
   )
