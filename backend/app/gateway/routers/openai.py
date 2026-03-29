@@ -110,8 +110,8 @@ async def list_models() -> ModelList:
     return ModelList(data=models)
 
 
-@v1_router.post("/chat/completions")
-async def create_chat_completion(request: ChatCompletionRequest) -> ChatCompletionResponse | StreamingResponse:
+@v1_router.post("/chat/completions", response_model=None)
+async def create_chat_completion(request: ChatCompletionRequest):
     config = get_openai_api_config()
     app_config = get_app_config()
 
@@ -331,8 +331,8 @@ class StreamResponse(BaseModel):
     choices: list[dict] = []
 
 
-@router.post("/responses")
-async def create_response(request: ResponseRequest) -> Response | StreamingResponse:
+@router.post("/responses", response_model=None)
+async def create_response(request: ResponseRequest):
     config = get_openai_api_config()
     app_config = get_app_config()
 
