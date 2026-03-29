@@ -59,6 +59,7 @@ DeerFlow has newly integrated the intelligent search and crawling toolset indepe
       - [MCP Server](#mcp-server)
       - [IM Channels](#im-channels)
       - [LangSmith Tracing](#langsmith-tracing)
+      - [OpenAI-Compatible API](#openai-compatible-api)
   - [From Deep Research to Super Agent Harness](#from-deep-research-to-super-agent-harness)
   - [Core Features](#core-features)
     - [Skills \& Tools](#skills--tools)
@@ -412,6 +413,66 @@ LANGSMITH_PROJECT=xxx
 ```
 
 For Docker deployments, tracing is disabled by default. Set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` in your `.env` to enable it.
+
+#### OpenAI-Compatible API
+
+DeerFlow exposes an OpenAI-compatible API server, allowing you to use DeerFlow as a local model provider for other applications. This is useful when you want to use DeerFlow's agent capabilities (tools, memory, sub-agents) with external tools or applications that support OpenAI-compatible endpoints.
+
+**Enable the API server** by setting environment variables:
+
+```bash
+# Enable the OpenAI-compatible API server
+OPENAI_COMPATIBLE_ENABLED=true
+
+# Server configuration (optional, defaults shown)
+OPENAI_COMPATIBLE_HOST=127.0.0.1
+OPENAI_COMPATIBLE_PORT=8000
+
+# Default model to use when not specified in request
+OPENAI_COMPATIBLE_DEFAULT_MODEL=your-model-name
+```
+
+**Available Endpoints:**
+
+| Endpoint | Description |
+|---------|-------------|
+| `GET /v1/models` | List available models |
+| `POST /v1/chat/completions` | Chat completions (streaming & non-streaming) |
+| `POST /responses` | OpenAI Responses API (streaming & non-streaming) |
+
+**Example Requests:**
+
+```bash
+# List models
+curl http://localhost:8001/v1/models
+
+# Chat completion (non-streaming)
+curl -X POST http://localhost:8001/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+
+# Chat completion (streaming)
+curl -X POST http://localhost:8001/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Count to 5"}],
+    "stream": true
+  }'
+
+# Responses API
+curl -X POST http://localhost:8001/responses \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "input": "Hello!"
+  }'
+```
+
+The API server supports tool calling — the underlying DeerFlow agent will execute tools as needed and return results to the client.
 
 ## From Deep Research to Super Agent Harness
 

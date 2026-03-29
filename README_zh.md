@@ -47,6 +47,7 @@ https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
       - [MCP Server](#mcp-server)
       - [IM 渠道](#im-渠道)
       - [LangSmith 链路追踪](#langsmith-链路追踪)
+      - [OpenAI 兼容 API](#openai-兼容-api)
   - [从 Deep Research 到 Super Agent Harness](#从-deep-research-到-super-agent-harness)
   - [核心特性](#核心特性)
     - [Skills 与 Tools](#skills-与-tools)
@@ -349,6 +350,66 @@ LANGSMITH_PROJECT=xxx
 ```
 
 Docker 部署时，追踪默认关闭。在 `.env` 中设置 `LANGSMITH_TRACING=true` 和 `LANGSMITH_API_KEY` 即可启用。
+
+#### OpenAI 兼容 API
+
+DeerFlow 提供了 OpenAI 兼容的 API 服务器，你可以把它作为本地模型提供者，供其他应用使用。当你希望让外部工具或应用使用 DeerFlow 的 agent 能力（工具、memory、sub-agents）时，这个功能非常有用。
+
+**启用 API 服务器**，在环境变量中设置：
+
+```bash
+# 启用 OpenAI 兼容 API 服务器
+OPENAI_COMPATIBLE_ENABLED=true
+
+# 服务器配置（可选，以下是默认值）
+OPENAI_COMPATIBLE_HOST=127.0.0.1
+OPENAI_COMPATIBLE_PORT=8000
+
+# 默认使用的模型（未指定时）
+OPENAI_COMPATIBLE_DEFAULT_MODEL=your-model-name
+```
+
+**可用端点：**
+
+| 端点 | 说明 |
+|------|------|
+| `GET /v1/models` | 获取可用模型列表 |
+| `POST /v1/chat/completions` | 对话补全（流式 & 非流式）|
+| `POST /responses` | OpenAI Responses API（流式 & 非流式）|
+
+**请求示例：**
+
+```bash
+# 获取模型列表
+curl http://localhost:8001/v1/models
+
+# 对话补全（非流式）
+curl -X POST http://localhost:8001/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "你好！"}]
+  }'
+
+# 对话补全（流式）
+curl -X POST http://localhost:8001/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "数到5"}],
+    "stream": true
+  }'
+
+# Responses API
+curl -X POST http://localhost:8001/responses \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "input": "你好！"
+  }'
+```
+
+API 服务器支持工具调用 —— 底层 DeerFlow agent 会按需执行工具并返回结果给客户端。
 
 ## 从 Deep Research 到 Super Agent Harness
 
